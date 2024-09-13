@@ -1,6 +1,6 @@
 C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFrame](https://github.com/runezor/PiArtFrame) python project. 
 
-To change the update render time, adjust `26*60` in file [main.c](https://github.com/giuliomagnifico/PiArtFrame-CPP/blob/master/main.c) (line 14, 25 are the minutes)
+To change the update render time, adjust `15*60` in file [main.c](https://github.com/giuliomagnifico/PiArtFrame-CPP/blob/master/main.c) (line 14, 15 are the minutes)
 
 I used [this](https://amzn.eu/d/aYdLU5K) Amazon Basics frame. 
 
