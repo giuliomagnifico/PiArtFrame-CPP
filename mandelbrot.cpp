@@ -173,7 +173,7 @@ void MandelbrotSet::ZoomOnInterestingArea()
         lessUniformChoices.begin(),
         lessUniformChoices.end(),
         [](const tuple<double, double, double>& x) { 
-            return (std::get<2>(x) >= 0.85); 
+            return (std::get<2>(x) >= 0.95); 
         }), lessUniformChoices.end());
 
     auto topTierChoices = choices;
@@ -181,7 +181,7 @@ void MandelbrotSet::ZoomOnInterestingArea()
         topTierChoices.begin(),
         topTierChoices.end(),
         [](const tuple<double, double, double>& x) { 
-            return (std::get<2>(x) >= 0.75); 
+            return (std::get<2>(x) >= 0.85); 
         }), topTierChoices.end());
 
     // Seed
