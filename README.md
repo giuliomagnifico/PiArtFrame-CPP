@@ -1,4 +1,4 @@
-C++ port by @kevlol of the [runezor/PiArtFrame](https://github.com/runezor/PiArtFrame) python project. 
+C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFrame](https://github.com/runezor/PiArtFrame) python project. 
 
 # PiArtFrame
 
