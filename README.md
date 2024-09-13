@@ -1,3 +1,5 @@
+C++ port by @kevlol of the [runezor/PiArtFrame](https://github.com/runezor/PiArtFrame) python project. 
+
 # PiArtFrame
 
 To run the script, first wire up the Raspberry Pi with an e-Ink panel.
