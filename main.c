@@ -11,7 +11,7 @@
 using namespace std;
 using namespace chrono;
 
-static constexpr unsigned long SecondsBetweenImages = 7;
+static constexpr unsigned long SecondsBetweenImages = 15*60;
 void Handler(int signo)
 {
 
