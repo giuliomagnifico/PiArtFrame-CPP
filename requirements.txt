@@ -1,4 +1,0 @@
-pillow
-numpy
-tqdm
-git+https://github.com/robweber/omni-epd.git#egg=omni-epd
