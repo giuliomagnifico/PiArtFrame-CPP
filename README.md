@@ -2,7 +2,7 @@ Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFra
 
 **Changes**
 - The concept is the same, but the rendering algorithm is a bit different. 
-- There's also the option to render the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, switch to [julia-set](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/julia-set) branch.
+- There's also the option to render the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, switch to [julia-set](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/julia-set) branch, see the [image](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/master?tab=readme-ov-file#mandelbrot-vs-julia) at bottom of the README to compare the two fractals.
 - I also added a simple bash script to set it up.
 
 
