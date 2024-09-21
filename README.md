@@ -11,10 +11,10 @@ Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFra
 ![final-2](https://github.com/user-attachments/assets/04984b90-a46a-4192-91cb-3b98e74e3419)
 ![final-1](https://giuliomagnifico.blog/_images/2024/cPiArtFrame/build_b.jpg)
 
-## Requirement:
+## Requirement
 
-- Raspberry Pi (best with Zero 2 or Zero)
-- Waveshare 7.5" 800x480px display: [Link](https://www.google.com/search?q=Waveshare%207.5%22%20800x480px)
+- Raspberry PI (Zero 2)
+- Waveshare 7.5" 800x480px e-ink display: [Link](https://www.google.com/search?q=Waveshare%207.5%22%20800x480px)
 - 10x15cm frame, I used [this one](https://amzn.eu/d/ixgJbUD) from Amazon Basics
   
 ## Install
@@ -33,7 +33,7 @@ It will ask you how many minutes you want between creating new images on the dis
 
 Enjoy the fractals!
 
-## Build images 
+## Construction
 
 ![build](https://giuliomagnifico.blog/_images/2024/cPiArtFrame/build_a.jpg)
 
