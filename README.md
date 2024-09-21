@@ -1,5 +1,7 @@
 Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFrame](https://github.com/runezor/PiArtFrame) python project. 
 
+The concept is the same, but the rendering algorithm is a bit different. I also added a simple bash script to set it up.
+
 
 ## Final result
 
