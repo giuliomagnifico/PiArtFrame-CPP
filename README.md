@@ -1,6 +1,9 @@
 Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFrame](https://github.com/runezor/PiArtFrame) python project. 
 
-The concept is the same, but the rendering algorithm is a bit different. I also added a simple bash script to set it up.
+**Changes**
+- The concept is the same, but the rendering algorithm is a bit different. 
+- There's also the option to render the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, switch to [julia-set](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/julia-set) branch.
+- I also added a simple bash script to set it up.
 
 
 ## Final result
@@ -34,6 +37,15 @@ Enjoy the fractals!
 
 ![build](https://giuliomagnifico.blog/_images/2024/cPiArtFrame/build_a.jpg)
 
+## Mandelbrot VS Julia
+
+![Mandelbrot VS Julia](https://github.com/user-attachments/assets/e197214f-3342-4355-bf8d-1a28dfcd2d9c)
+
+
 ### Tip
+
+
+If you want to use the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, switch to [julia-set](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/julia-set) branch, create a new folder and download all the file plus the `julia.cpp`, `julia.hpp`, and overwrite the `main.c`, then launch `make` from this folder (don't use the `config.sh` is not updated).
+
 
 You can use any Waveshare display, also smaller or bigger, but you have to change the [main.c](main.c) code according to the EPD library of your e-paper. The libraries are all included inside the [lib folder](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/master/lib/waveshare/e-Paper) of this repository. 
