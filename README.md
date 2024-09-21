@@ -23,6 +23,6 @@ Then launch the `config.sh` file using:
 ```
 bash config.sh
 ```
-It will ask you how many minutes you want to spend creating a new image on the display (default is 15). After that, it will compile the code with your settings and add the command to launch PiArtFrame at every reboot.
+It will ask you how many minutes you want to use between the creating of  a new image on the display (default is 15). After that, it will compile the code with your settings and add the command to launch PiArtFrame at every reboot.
 
 Enjoy the fractals!
