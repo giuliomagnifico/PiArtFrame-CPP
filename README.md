@@ -48,4 +48,4 @@ Enjoy the fractals!
 If you want to use the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, switch to [julia-set](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/julia-set) branch, create a new folder and download all the file plus the `julia.cpp`, `julia.hpp`, and overwrite the `main.c`, then launch `make` from this folder (don't use the `config.sh` is not updated).
 
 
-You can use any Waveshare display, also smaller or bigger, but you have to change the [main.c](main.c) code according to the EPD library of your e-paper. The libraries are all included inside the [lib folder](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/master/lib/waveshare/e-Paper) of this repository. 
+You can use any Waveshare display, also smaller or bigger, but you have to change the [main.c](main.c) and [Makefile](https://github.com/giuliomagnifico/PiArtFrame-CPP/blob/master/Makefile) code according to the EPD library of your e-paper. The libraries are all included inside the [lib folder](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/master/lib/waveshare/e-Paper) of this repository. 
