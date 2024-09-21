@@ -15,8 +15,7 @@ The concept is the same, but the rendering algorithm is a bit different. I also 
   
 ## Install
 
-*(You need to install gcc, make, and all the other required C++ packages and libraries for your specific Raspberry Pi OS.)
-otherwise the compile process will fail obviously)*
+*(You need to install gcc, make, and all the other required C++ packages and libraries for your specific Raspberry Pi OS)*
 
 To install and run it, download the project:
 ```
