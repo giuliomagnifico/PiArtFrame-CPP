@@ -8,8 +8,8 @@ Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFra
 
 ## Final result
 
-![final-2](https://github.com/user-attachments/assets/04984b90-a46a-4192-91cb-3b98e74e3419)
-![final-1](https://giuliomagnifico.blog/_images/2024/cPiArtFrame/build_b.jpg)
+![final](https://github.com/user-attachments/assets/04984b90-a46a-4192-91cb-3b98e74e3419)
+![final](https://github.com/user-attachments/assets/e1d2aff0-ee0a-43dc-ba22-1317128ee467)
 
 ## Requirement
 
@@ -33,9 +33,10 @@ It will ask you how many minutes you want between creating new images on the dis
 
 Enjoy the fractals!
 
-## Construction
+## Assembly
 
-![build](https://giuliomagnifico.blog/_images/2024/cPiArtFrame/build_a.jpg)
+![Assembly](https://github.com/user-attachments/assets/898496b8-f1ad-42d0-9bd6-e00dbd6262c4)
+
 
 ## Mandelbrot VS Julia
 
