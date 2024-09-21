@@ -2,7 +2,7 @@
 
 file="./main.c"
 target_line=14
-read -p "Enter the number of minutes to update the image and wait for the compilation end: " minutes
+read -p "Enter the number of minutes to render the new image on the display: " minutes
 seconds=$((minutes * 60))
 new_line="static constexpr unsigned long SecondsBetweenImages = $seconds;"
 
