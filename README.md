@@ -29,4 +29,4 @@ Enjoy the fractals!
 
 ### Tip
 
-you can use any Waveshare display, also smaller or bigger, but you have to change the [main.c]() code according to the EPD library of your e-paper. The libraries are all included inside 
+you can use any Waveshare display, also smaller or bigger, but you have to change the [main.c]() code according to the EPD library of your e-paper. The libraries are all included inside the [lib folder](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/master/lib/waveshare/e-Paper) of this repository. 
