@@ -30,6 +30,10 @@ It will ask you how many minutes you want to use between the creating of  a new 
 
 Enjoy the fractals!
 
+## Build images 
+
+![build](https://giuliomagnifico.blog/_images/2024/cPiArtFrame/build_a.jpg)
+
 ### Tip
 
 You can use any Waveshare display, also smaller or bigger, but you have to change the [main.c](main.c) code according to the EPD library of your e-paper. The libraries are all included inside the [lib folder](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/master/lib/waveshare/e-Paper) of this repository. 
