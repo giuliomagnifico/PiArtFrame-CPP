@@ -31,7 +31,7 @@ bash config.sh
 ```
 It will ask you how many minutes you want between creating new images on the display (default is 15). After that, it will compile the code with your settings and add the command to launch PiArtFrame at every reboot.
 
-**Julia instead of Mandelbro**
+## Render the Julia instead of Mandelbrot
 
 If you want to use the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, do the same steps but using the "julia-set" branch:
 
