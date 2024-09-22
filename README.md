@@ -25,11 +25,23 @@ To install and run it, download the project:
 ```
 git clone https://github.com/giuliomagnifico/PiArtFrame-CPP
 ```
-Then launch the `config.sh` file using:
+`cd`intro the folder *PiArtFrame-CPP* and launch the `config.sh` file using:
 ```
 bash config.sh
 ```
 It will ask you how many minutes you want between creating new images on the display (default is 15). After that, it will compile the code with your settings and add the command to launch PiArtFrame at every reboot.
+
+**Julia instead of Mandelbro**
+
+If you want to use the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, do the same steps but using the "julia-set" branch:
+
+`git clone --branch julia-set https://github.com/giuliomagnifico/PiArtFrame-CPP.git`
+
+and 
+
+```
+bash config.sh
+```
 
 Enjoy the fractals!
 
@@ -44,9 +56,6 @@ Enjoy the fractals!
 
 
 ### Tips
-
-
-If you want to use the [Julia set](https://en.wikipedia.org/wiki/Julia_set) fractal instead of the Mandelbrot, switch to [julia-set](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/julia-set) branch, create a new folder and download all the file plus the `julia.cpp`, `julia.hpp`, and overwrite the `main.c`, then launch `make` from this folder (don't use the `config.sh` is not updated).
 
 
 You can use any Waveshare display, also smaller or bigger, but you have to change the [main.c](main.c) and [Makefile](https://github.com/giuliomagnifico/PiArtFrame-CPP/blob/master/Makefile) code according to the EPD library of your e-paper. The libraries are all included inside the [lib folder](https://github.com/giuliomagnifico/PiArtFrame-CPP/tree/master/lib/waveshare/e-Paper) of this repository. 
