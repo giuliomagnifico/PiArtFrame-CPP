@@ -19,9 +19,25 @@ Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFra
   
 ## Install
 
-*(You need to install gcc, make, and all the other required C++ packages and libraries for your specific Raspberry Pi OS)*
+First you need to enable the `SPI interface` to make able the RPi to connect to the display, usually running:
+```
+raspi-config
+Interfacing Options -> SPI -> Yes - enable SPI interface
+```
+On DietPi is under:
 
-To install and run it, download the project:
+```
+dietpi-config
+Advanced Options -> SPI state -> Turn ON
+```
+
+After you need to install some software depending on your PI OS, I'm using DietPi and I used:
+
+```
+apt install gcc g++ make liblgpio-dev -y
+```
+
+Then to install this project and run it, download it:
 ```
 git clone https://github.com/giuliomagnifico/PiArtFrame-CPP
 ```
