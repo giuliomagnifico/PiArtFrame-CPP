@@ -6,13 +6,13 @@
 #include <iostream>
 #include <chrono>
 
-#include "julia.hpp"    
+#include "julia.hpp"
 
 using namespace std;
 using namespace chrono;
 
-static constexpr unsigned long SecondsBetweenImages = 1*60; 
-void Handler(int signo)
+static constexpr unsigned long SecondsBetweenImages = 4; 
+void  Handler(int signo)
 {
 
     printf("\r\nHandler:exit\r\n");
@@ -26,7 +26,7 @@ int main(void)
 
     signal(SIGINT, Handler);
 
-    if (DEV_Module_Init() != 0) {
+    if(DEV_Module_Init()!=0){
         return -1;
     }
 
@@ -35,33 +35,38 @@ int main(void)
     EPD_7IN5_V2_Clear();
     DEV_Delay_ms(500);
 
-    UWORD Imagesize = ((EPD_7IN5_V2_WIDTH % 8 == 0) ? (EPD_7IN5_V2_WIDTH / 8) : (EPD_7IN5_V2_WIDTH / 8 + 1)) * EPD_7IN5_V2_HEIGHT;
+    UWORD Imagesize = ((EPD_7IN5_V2_WIDTH % 8 == 0)? (EPD_7IN5_V2_WIDTH / 8 ): (EPD_7IN5_V2_WIDTH / 8 + 1)) * EPD_7IN5_V2_HEIGHT;
     UBYTE* img = NULL;
 
-    if ((img = (UBYTE *)malloc(Imagesize)) == NULL) {
+    if((img = (UBYTE *)malloc(Imagesize)) == NULL) {
         printf("Failed to apply for image memory...\r\n");
         return -1;
     }
     Paint_NewImage(img, EPD_7IN5_V2_WIDTH, EPD_7IN5_V2_HEIGHT, 0, WHITE);
     Paint_SelectImage(img);
 
-    JuliaSet julia(-0.7, 0.27015);  
-    julia.SetRender(img);  
+    JuliaSet julia;
+    julia.InitJuliaSet();
+    julia.SetRender(img);
 
     bool isFirstImage = true;
     unsigned int numberOfZooms = 1;
-    while (true)
+    while(true)
     {
         steady_clock::time_point beforeRender = steady_clock::now();
         cout << "Starting render..." << endl;
-        julia.Render(EPD_7IN5_V2_WIDTH, EPD_7IN5_V2_HEIGHT);  
+        julia.Render(EPD_7IN5_V2_WIDTH, EPD_7IN5_V2_HEIGHT);
         cout << "Render complete!" << endl;
         steady_clock::time_point afterRender = steady_clock::now();
 
-        if (isFirstImage) {
+        if(isFirstImage)
+        {
             isFirstImage = false;
-        } else {
-            while (duration_cast<std::chrono::seconds>(afterRender - beforeRender).count() < SecondsBetweenImages) {
+        }
+        else
+        {
+            while(duration_cast<std::chrono::seconds>(afterRender - beforeRender).count() < SecondsBetweenImages)
+            {
                 sleep(5);
                 afterRender = steady_clock::now();
             }
@@ -71,16 +76,18 @@ int main(void)
         EPD_7IN5_V2_Init();
         EPD_7IN5_V2_Clear();
         DEV_Delay_ms(500);
-        EPD_7IN5_V2_Display(img);  
+        EPD_7IN5_V2_Display(img);
         EPD_7IN5_V2_Sleep();
         cout << "Draw completed!" << endl;
 
-        julia.ZoomOnInterestingArea();  
+        julia.ZoomOnInterestingArea();
 
-        if (numberOfZooms % 500 == 0) {
-            julia = JuliaSet(-0.7, 0.27015);  
+        if(numberOfZooms %50 == 0)
+        {
+            julia.InitJuliaSet();
         }
         numberOfZooms++;
+
     }
 
     return 0;
