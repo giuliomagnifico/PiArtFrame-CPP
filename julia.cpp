@@ -7,6 +7,10 @@
 #include <tuple>
 #include <cmath>
 #include "GUI_Paint.h"
+#include <thread>  
+#include <mutex>   
+#include <stdexcept> 
+#include <iostream> 
 
 void JuliaSet::InitJuliaSet()
 {
@@ -22,40 +26,58 @@ void JuliaSet::InitJuliaSet()
 
 void JuliaSet::SetRender(UBYTE* image)
 {
-    rendered = image;
+    rendered = image;  
 }
 
 void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
 {
+    const int numThreads = 4;
+    int chunkSize = yResolution / numThreads;
+    std::vector<std::thread> threads;
+    std::mutex mutex;  
+
     static int imageIndex = 0;
     bool validImage = false;
 
+    int blackPixelCount = 0;
+    int totalPixelCount = xResolution * yResolution;
+    int retryCount = 0;               
+    const int maxRetries = 100;         
+    const int minBlackPixelCount = totalPixelCount * 0.07;  
+    const int maxBlackPixelCount = totalPixelCount * 0.75;  
+
+    auto renderChunk = [&](int startY, int endY, int& localBlackPixelCount) {
+        for (int i = startY; i < endY; ++i) {
+            for (int j = 0; j < xResolution; ++j) {
+                double p_x = this->x - this->w / 2.0 + (double)j / (double)xResolution * this->w;
+                double p_y = this->y - this->h / 2.0 + (double)(i + 1) / (double)yResolution * this->h;
+                bool isJuliaPoint = IsJuliaPoint(p_x, p_y, 30 + std::max(0.0, -log10(w)) * 100);
+
+                if (isJuliaPoint) {
+                    localBlackPixelCount++;  
+                }
+
+                Paint_SetPixel(j, i, isJuliaPoint ? BLACK : WHITE);
+            }
+        }
+    };
+
     while (!validImage) {
+
+        blackPixelCount = 0;
+
         double aspectRatio = (double)xResolution / (double)yResolution;
 
         if (imageIndex == 0) {
+
             if (w / h != aspectRatio) {
                 h = w / aspectRatio;
             }
-        } else if (imageIndex < 5) {
+        } else {
+
             x += ((rand() % 100) - 50) / 500.0;
             y += ((rand() % 100) - 50) / 500.0;
-            w *= 1.0 + ((rand() % 40) - 20) / 100.0;
-            h *= 1.0 + ((rand() % 40) - 20) / 100.0;
-
-            w = std::min(std::max(w, 0.05), 4.0);
-            h = std::min(std::max(h, 0.05), 2.0);
-            h = w / aspectRatio;
-            x = std::min(std::max(x, -1.5), -0.5);
-            y = std::min(std::max(y, -0.5), 0.5);
-        } else {
-            x += ((rand() % 50) - 25) / 1000.0;
-            y += ((rand() % 50) - 25) / 1000.0;
-            w *= 1.0 + ((rand() % 20) - 10) / 100.0;
-            h *= 1.0 + ((rand() % 20) - 10) / 100.0;
-
-            w = std::min(std::max(w, 0.05), 4.0);
-            h = std::min(std::max(h, 0.05), 2.0);
+            w *= 0.9;
             h = w / aspectRatio;
             x = std::min(std::max(x, -1.5), -0.5);
             y = std::min(std::max(y, -0.5), 0.5);
@@ -63,50 +85,36 @@ void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
 
         imageIndex++;
 
-        int iter = (50 + std::max(0.0, -log10(w)) * 100);
-        iter += rand() % 50;
-
-        std::vector<std::vector<bool>> columns;
-        int whiteCount = 0;
-        int blackCount = 0;
-
-        for (int i = yResolution - 1; i >= 0; --i) {
-            std::vector<bool> rows;
-            for (int j = 0; j < xResolution; ++j) {
-                double p_x = this->x - this->w / 2.0 + (double)j / (double)xResolution * this->w;
-                double p_y = this->y - this->h / 2.0 + (double)(i + 1) / (double)yResolution * this->h;
-                bool isJuliaPoint = IsJuliaPoint(p_x, p_y, iter);
-                rows.emplace_back(isJuliaPoint);
-
-                if (isJuliaPoint) {
-                    blackCount++;
-                } else {
-                    whiteCount++;
-                }
-            }
-            columns.emplace_back(rows);
+        std::vector<int> localBlackCounts(numThreads, 0);  
+        for (int t = 0; t < numThreads; ++t) {
+            int startY = t * chunkSize;
+            int endY = (t == numThreads - 1) ? yResolution : (t + 1) * chunkSize;
+            threads.emplace_back(renderChunk, startY, endY, std::ref(localBlackCounts[t]));
         }
 
-        renderedResX = xResolution;
-        renderedResY = yResolution;
+        for (auto& thread : threads) {
+            if (thread.joinable()) {
+                thread.join();
+            }
+        }
 
-        double totalPixels = (double)(xResolution * yResolution);
-        double blackRatio = (double)blackCount / totalPixels;
-        double whiteRatio = (double)whiteCount / totalPixels;
+        for (int count : localBlackCounts) {
+            blackPixelCount += count;
+        }
 
-        if (blackRatio < 0.95 && whiteRatio < 0.95) {
-            validImage = true;
+        if (blackPixelCount >= minBlackPixelCount && blackPixelCount <= maxBlackPixelCount) {
+            validImage = true;  
+        } else {
 
-            for (unsigned int y = 0; y < columns.size(); ++y) {
-                auto row = columns[y];
-                for (unsigned int x = 0; x < row.size(); ++x) {
-                    auto bitSet = row[x];
-                    if (bitSet) {
-                        Paint_SetPixel(x, y, BLACK);
-                    } else {
-                        Paint_SetPixel(x, y, WHITE);
-                    }
-                }
+            retryCount++;
+            if (retryCount >= maxRetries) {
+                std::cout << "Max retries reached. Resetting zoom." << std::endl;
+                InitJuliaSet();  
+                retryCount = 0;
+            } else if (blackPixelCount < minBlackPixelCount) {
+                std::cout << "Too few black pixels (" << (double)blackPixelCount / totalPixelCount * 100 << "%), regenerating..." << std::endl;
+            } else {
+                std::cout << "Too many black pixels (" << (double)blackPixelCount / totalPixelCount * 100 << "%), regenerating..." << std::endl;
             }
         }
     }
@@ -115,15 +123,15 @@ void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
 bool JuliaSet::IsJuliaPoint(double fX, double fY, int iterations)
 {
     std::complex<double> z(fX, fY);
-    std::complex<double> c(-0.7, 0.27015);  
+    std::complex<double> c(-0.8, 0.156);  
 
     for (int i = 0; i < iterations; ++i) {
         z = z * z + c;
         if (std::abs(z) > 2.0) {
-            return true;
+            return false;
         }
     }
-    return false;
+    return true;
 }
 
 void JuliaSet::ZoomOnInterestingArea()
