@@ -34,17 +34,17 @@ void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
     const int numThreads = 4;
     int chunkSize = yResolution / numThreads;
     std::vector<std::thread> threads;
-    std::mutex mutex;  
+    std::mutex mutex;
 
     static int imageIndex = 0;
     bool validImage = false;
 
     int blackPixelCount = 0;
     int totalPixelCount = xResolution * yResolution;
-    int retryCount = 0;               
-    const int maxRetries = 100;         
-    const int minBlackPixelCount = totalPixelCount * 0.07;  
-    const int maxBlackPixelCount = totalPixelCount * 0.75;  
+    int retryCount = 0;
+    const int maxRetries = 1000;
+    const int minBlackPixelCount = totalPixelCount * 0.20;  // Minimum 20% black pixels
+    const int maxBlackPixelCount = totalPixelCount * 0.80;  // Maximum 80% black pixels
 
     auto renderChunk = [&](int startY, int endY, int& localBlackPixelCount) {
         for (int i = startY; i < endY; ++i) {
@@ -54,7 +54,7 @@ void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
                 bool isJuliaPoint = IsJuliaPoint(p_x, p_y, 30 + std::max(0.0, -log10(w)) * 100);
 
                 if (isJuliaPoint) {
-                    localBlackPixelCount++;  
+                    localBlackPixelCount++;  // Count black pixels in this chunk
                 }
 
                 Paint_SetPixel(j, i, isJuliaPoint ? BLACK : WHITE);
@@ -63,21 +63,20 @@ void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
     };
 
     while (!validImage) {
-
         blackPixelCount = 0;
 
         double aspectRatio = (double)xResolution / (double)yResolution;
 
         if (imageIndex == 0) {
-
+            // Initial aspect ratio adjustment
             if (w / h != aspectRatio) {
                 h = w / aspectRatio;
             }
         } else {
-
+            // Pan and zoom with each new image
             x += ((rand() % 100) - 50) / 500.0;
             y += ((rand() % 100) - 50) / 500.0;
-            w *= 0.9;
+            w *= 0.95;  // Less aggressive zoom
             h = w / aspectRatio;
             x = std::min(std::max(x, -1.5), -0.5);
             y = std::min(std::max(y, -0.5), 0.5);
@@ -85,7 +84,7 @@ void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
 
         imageIndex++;
 
-        std::vector<int> localBlackCounts(numThreads, 0);  
+        std::vector<int> localBlackCounts(numThreads, 0);  // Black pixel counts per thread
         for (int t = 0; t < numThreads; ++t) {
             int startY = t * chunkSize;
             int endY = (t == numThreads - 1) ? yResolution : (t + 1) * chunkSize;
@@ -98,21 +97,36 @@ void JuliaSet::Render(UWORD xResolution, UWORD yResolution)
             }
         }
 
+        // Sum the black pixel counts from all threads
         for (int count : localBlackCounts) {
             blackPixelCount += count;
         }
 
         if (blackPixelCount >= minBlackPixelCount && blackPixelCount <= maxBlackPixelCount) {
-            validImage = true;  
+            validImage = true;  // Image is valid, exit the loop
         } else {
-
             retryCount++;
             if (retryCount >= maxRetries) {
                 std::cout << "Max retries reached. Resetting zoom." << std::endl;
-                InitJuliaSet();  
+                InitJuliaSet();  // Reset zoom and position
                 retryCount = 0;
+            } else if (blackPixelCount == 0) {
+                std::cout << "No black pixels (0%), exploring new region..." << std::endl;
+                x += ((rand() % 100) - 50) / 50.0;  // Larger jump
+                y += ((rand() % 100) - 50) / 50.0;
+                w *= 1.5;  // Zoom out more to explore larger areas
+                h = w / aspectRatio;
             } else if (blackPixelCount < minBlackPixelCount) {
                 std::cout << "Too few black pixels (" << (double)blackPixelCount / totalPixelCount * 100 << "%), regenerating..." << std::endl;
+                if (retryCount % 30 == 0) {
+                    // Explore new region every 10 retries
+                    x += ((rand() % 100) - 50) / 100.0;
+                    y += ((rand() % 100) - 50) / 100.0;
+                    w *= 1.2;
+                    h = w / aspectRatio;
+                    x = std::min(std::max(x, -1.5), -0.5);
+                    y = std::min(std::max(y, -0.5), 0.5);
+                }
             } else {
                 std::cout << "Too many black pixels (" << (double)blackPixelCount / totalPixelCount * 100 << "%), regenerating..." << std::endl;
             }
