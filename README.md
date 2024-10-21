@@ -11,8 +11,6 @@ Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFra
 ![final-2](https://github.com/user-attachments/assets/f3e66f7a-36e1-498d-a780-91780960e283)
 
 
-![final](https://github.com/user-attachments/assets/e1d2aff0-ee0a-43dc-ba22-1317128ee467)
-
 ## Requirement
 
 - Raspberry PI (Zero 2)
@@ -67,11 +65,7 @@ Enjoy the fractals!
 
 ![Assembly](https://github.com/user-attachments/assets/898496b8-f1ad-42d0-9bd6-e00dbd6262c4)
 
-
-## Mandelbrot VS Julia
-
-![Mandelbrot VS Julia](https://github.com/user-attachments/assets/e197214f-3342-4355-bf8d-1a28dfcd2d9c)
-
+![final](https://github.com/user-attachments/assets/e1d2aff0-ee0a-43dc-ba22-1317128ee467)
 
 ### Tips
 
