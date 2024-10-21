@@ -8,7 +8,9 @@ Tweaked C++ port by [kevlol](https://github.com/kevlol) of the [runezor/PiArtFra
 
 ## Final result
 
-![final](https://github.com/user-attachments/assets/04984b90-a46a-4192-91cb-3b98e74e3419)
+![final-2](https://github.com/user-attachments/assets/f3e66f7a-36e1-498d-a780-91780960e283)
+
+
 ![final](https://github.com/user-attachments/assets/e1d2aff0-ee0a-43dc-ba22-1317128ee467)
 
 ## Requirement
