@@ -1,262 +1,205 @@
-#include "GUI_Paint.h"
 #include "mandelbrot.hpp"
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <ctime>
+#include "GUI_Paint.h"
 #include <random>
-#include <tuple>
+#include <thread>
 #include <vector>
+#include <mutex>
+#include <cmath>
+#include <algorithm>
+#include <iostream>
 
-using namespace std;
-
-void MandelbrotSet::InitMandelbrotSet()
-{
-  w = 4;
-  h = 2;
-  x = -1;
-  y = 0;
-  rendered = NULL;
-  renderedResX = 0;
-  renderedResY = 0;
-  srand(time(0));
+void MandelbrotSet::SetRender(UBYTE * image) {
+	rendered = image;
 }
 
-void MandelbrotSet::SetRender(UBYTE* image) { rendered = image; }
-
-void MandelbrotSet::Render(UWORD xResolution, UWORD yResolution)
-{
-
-  static int imageIndex = 0;
-  bool validImage = false;
-
-  while (!validImage) {
-
-    double aspectRatio = (double)xResolution / (double)yResolution;
-
-    if (imageIndex == 0) {
-
-      if (w / h != aspectRatio) {
-        h = w / aspectRatio;
-      }
-    } else if (imageIndex < 5) {
-
-      x += ((rand() % 100) - 50) / 500.0;
-      y += ((rand() % 100) - 50) / 500.0;
-      w *= 1.0 + ((rand() % 40) - 20) / 100.0;
-      h *= 1.0 + ((rand() % 40) - 20) / 100.0;
-
-      w = min(max(w, 0.05), 4.0);
-      h = min(max(h, 0.05), 2.0);
-
-      h = w / aspectRatio;
-
-      x = min(max(x, -1.5), -0.5);
-      y = min(max(y, -0.5), 0.5);
-    } else {
-
-      x += ((rand() % 50) - 25) / 1000.0;
-      y += ((rand() % 50) - 25) / 1000.0;
-      w *= 1.0 + ((rand() % 20) - 10) / 100.0;
-      h *= 1.0 + ((rand() % 20) - 10) / 100.0;
-
-      w = min(max(w, 0.05), 4.0);
-      h = min(max(h, 0.05), 2.0);
-
-      h = w / aspectRatio;
-
-      x = min(max(x, -1.5), -0.5);
-      y = min(max(y, -0.5), 0.5);
-    }
-
-    imageIndex++;
-
-    int iter = (50 + max(0.0, -log10(w)) * 100);
-    iter += rand() % 50;
-
-    vector<vector<bool>> columns;
-
-    int whiteCount = 0;
-    int blackCount = 0;
-
-    for (int i = yResolution - 1; i >= 0; --i) {
-      vector<bool> rows;
-      for (int j = 0; j < xResolution; ++j) {
-        double p_x = this->x - this->w / 2.0
-            + (double)j / (double)xResolution * this->w;
-        double p_y = this->y - this->h / 2.0
-            + (double)(i + 1) / (double)yResolution * this->h;
-        bool isMandelPoint = IsMandelPoint(p_x, p_y, iter);
-        rows.emplace_back(isMandelPoint);
-
-        if (isMandelPoint) {
-          blackCount++;
-        } else {
-          whiteCount++;
-        }
-      }
-      columns.emplace_back(rows);
-    }
-
-    renderedResX = xResolution;
-    renderedResY = yResolution;
-
-    double totalPixels = (double)(xResolution * yResolution);
-    double blackRatio = (double)blackCount / totalPixels;
-    double whiteRatio = (double)whiteCount / totalPixels;
-
-    if (blackRatio < 0.95 && whiteRatio < 0.95) {
-      validImage = true;
-
-      for (unsigned int y = 0; y < columns.size(); ++y) {
-        auto row = columns[y];
-        for (unsigned int x = 0; x < row.size(); ++x) {
-          auto bitSet = row[x];
-          if (bitSet) {
-            Paint_SetPixel(x, y, WHITE);
-          } else {
-            Paint_SetPixel(x, y, BLACK);
-          }
-        }
-      }
-    }
-  }
+void MandelbrotSet::InitMandelbrotSet() {
+	w = 4.0;
+	h = 2.0;
+	if(renderedResX > 0 && renderedResY > 0) {
+		double aspectRatio = (double) renderedResX / (double) renderedResY;
+		h = w / aspectRatio;
+	}
+	x = -1.0;
+	y = 0.0;
+	renderedResX = 0;
+	renderedResY = 0;
+	srand(time(0));
 }
-bool MandelbrotSet::IsMandelPoint(double fX, double fY, int iterations)
-{
-  double z_x = fX;
-  double z_y = fY;
-
-  for (int i = 0; i < iterations; ++i) {
-    double z_x_old = z_x;
-    z_x = z_x * z_x - z_y * z_y + fX;
-    z_y = 2.0 * z_x_old * z_y + fY;
-    auto sumSquared = pow(z_x, 2) + pow(z_y, 2);
-    if (sumSquared > 4) {
-      return true;
-    }
-  }
-  return false;
+bool MandelbrotSet::IsMandelPoint(double fX, double fY, int iterations) {
+	double z_x = fX;
+	double z_y = fY;
+	for(int i = 0; i < iterations; ++i) {
+		double z_x_old = z_x;
+		z_x = z_x * z_x - z_y * z_y + fX;
+		z_y = 2.0 * z_x_old * z_y + fY;
+		if(z_x * z_x + z_y * z_y > 4.0) {
+			return false;
+		}
+	}
+	return true;
 }
 
-unsigned long long MandelbrotSet::GetUniformnessOfArea(
-    double fW, double fH, int xOffset, int yOffset, int wDiv, int hDiv)
-{
-  unsigned long long uniformness = 0;
-  for (int wStart = 0; wStart < wDiv; ++wStart) {
-    for (int hStart = 0; hStart < hDiv; ++hStart) {
-      if (IsAreaUniform(xOffset, yOffset, fW, fH, wDiv, hDiv, wStart, hStart)) {
-        ++uniformness;
-      }
-    }
-  }
+void MandelbrotSet::Render(UWORD xResolution, UWORD yResolution) {
+	const int numThreads = 4;
+	int chunkSize = yResolution / numThreads;
+	std::vector < std::thread > threads;
+	std::mutex mutex;
+	static int imageIndex = 0;
+	bool validImage = false;
+	int blackPixelCount = 0;
+	int totalPixelCount = xResolution * yResolution;
+	int retryCount = 0;
+	const int maxRetries = 20;
+	const int minBlackPixelCount = totalPixelCount * 0.2;
+	const int maxBlackPixelCount = totalPixelCount * 0.9;
 
-  return uniformness;
+	double aspectRatio = (double) xResolution / (double) yResolution;
+
+	int iter = (50 + std::max(0.0, -log10(w)) * 100); 
+	iter += rand() % 50; 
+	auto renderChunk = [ & ](int startY, int endY, int & localBlackPixelCount) {
+		for(int i = startY; i < endY; ++i) {
+			for(int j = 0; j < xResolution; ++j) {
+				double p_x = this - > x - this - > w / 2.0 + (double) j / (double) xResolution * this - > w;
+				double p_y = this - > y - this - > h / 2.0 + (double) i / (double) yResolution * this - > h;
+				bool isMandelPoint = IsMandelPoint(p_x, p_y, iter);
+				if(isMandelPoint) {
+					localBlackPixelCount++;
+				}
+				Paint_SetPixel(j, i, isMandelPoint ? BLACK : WHITE);
+			}
+		}
+	};
+	while(!validImage) {
+		blackPixelCount = 0;
+
+		if(imageIndex == 0) {
+			if(w / h != aspectRatio) {
+				h = w / aspectRatio;
+			}
+		} else {
+			ZoomOnInterestingArea();
+			h = w / aspectRatio; 
+		}
+		imageIndex++;
+		std::vector < int > localBlackCounts(numThreads, 0);
+		for(int t = 0; t < numThreads; ++t) {
+			int startY = t * chunkSize;
+			int endY = (t == numThreads - 1) ? yResolution : (t + 1) * chunkSize;
+			threads.emplace_back(renderChunk, startY, endY, std::ref(localBlackCounts[t]));
+		}
+		for(auto & thread: threads) {
+			if(thread.joinable()) {
+				thread.join();
+			}
+		}
+		for(int count: localBlackCounts) {
+			blackPixelCount += count;
+		}
+		if(blackPixelCount >= minBlackPixelCount && blackPixelCount <= maxBlackPixelCount) {
+			validImage = true;
+		} else {
+			retryCount++;
+			if(retryCount >= maxRetries) {
+				std::cout << "Max retries reached. Exploring a new random region." << std::endl;
+				x = (rand() % 10000 - 5000) / 1000.0;
+				y = (rand() % 8000 - 4000) / 1000.0;
+				w = std::min(1.5, w); 
+				h = w / aspectRatio;
+				retryCount = 0;
+			} else {
+
+				x += ((rand() % 1000) - 500) / 100.0; 
+				y += ((rand() % 1000) - 500) / 100.0;
+				double zoomFactor = 1.0 + ((rand() % 200) / 100.0); 
+				w *= zoomFactor;
+				h = w / aspectRatio; 
+				if(w > 1.0) w = 1.0;
+				if(w < 0.05) w = 0.05;
+				std::cout << "Exploring new region: retry " << retryCount << " with zoom factor " << zoomFactor << std::endl;
+			}
+		}
+		threads.clear();
+	}
+}
+double MandelbrotSet::GetImprovedUniformnessOfArea(double fW, double fH, int xOffset, int yOffset, int wDiv, int hDiv) {
+	unsigned long long numWhite = 0;
+	unsigned long long numBlack = 0;
+	double totalPixels = fW * fH;
+	for(int wStart = 0; wStart < fW; ++wStart) {
+		for(int hStart = 0; hStart < fH; ++hStart) {
+			int xPointIndex = xOffset + wStart;
+			int yPointIndex = yOffset + hStart;
+			if(Paint_GetPixel(xPointIndex, yPointIndex) == WHITE) numWhite++;
+			else numBlack++;
+		}
+	}
+
+	return std::max((double) numWhite / totalPixels, (double) numBlack / totalPixels);
 }
 
-bool MandelbrotSet::IsAreaUniform(int xOffset, int yOffset, double fW,
-    double fH, int wDiv, int hDiv, double wStart, double hStart)
-{
-  int yInit = yOffset + static_cast<int>(fH / hDiv) * hStart;
-  int xInit = xOffset + static_cast<int>(fW / wDiv) * wStart;
-  auto firstPoint = Paint_GetPixel(xInit, yInit);
+void MandelbrotSet::ZoomOnInterestingArea() {
+	std::vector < std::tuple < double, double, double >> choices;
 
-  for (unsigned int i = 0; i < static_cast<unsigned int>(fW / wDiv); ++i) {
-    for (unsigned int j = 0; j < static_cast<unsigned int>(fH / hDiv); ++j) {
-      int yTest = yOffset + static_cast<int>(fH / hDiv) * hStart + j;
-      int xTest = xOffset + static_cast<int>(fW / wDiv) * wStart + i;
-      auto testPoint = Paint_GetPixel(xTest, yTest);
-      if (testPoint != firstPoint)
-        return false;
-    }
-  }
+	auto uniformnessTopLeft = GetImprovedUniformnessOfArea(this - > renderedResX / 2, this - > renderedResY / 2, 0, 0, 2, 2);
+	choices.emplace_back(this - > x - this - > w / 4, this - > y + this - > h / 4, uniformnessTopLeft);
+	auto uniformnessTopRight = GetImprovedUniformnessOfArea(this - > renderedResX / 2, this - > renderedResY / 2, this - > renderedResX / 2, 0, 2, 2);
+	choices.emplace_back(this - > x + this - > w / 4, this - > y + this - > h / 4, uniformnessTopRight);
+	auto uniformnessBottomLeft = GetImprovedUniformnessOfArea(this - > renderedResX / 2, this - > renderedResY / 2, 0, this - > renderedResY / 2, 2, 2);
+	choices.emplace_back(this - > x - this - > w / 4, this - > y - this - > h / 4, uniformnessBottomLeft);
+	auto uniformnessBottomRight = GetImprovedUniformnessOfArea(this - > renderedResX / 2, this - > renderedResY / 2, this - > renderedResX / 2, this - > renderedResY / 2, 2, 2);
+	choices.emplace_back(this - > x + this - > w / 4, this - > y - this - > h / 4, uniformnessBottomRight);
 
-  return true;
+	w /= 2.0;
+	h /= 2.0;
+
+	choices.erase(std::remove_if(choices.begin(), choices.end(),
+		[](const std::tuple < double, double, double > & region) {
+			return std::get < 2 > (region) >= 0.98; 
+		}), choices.end());
+
+	choices.erase(std::remove_if(choices.begin(), choices.end(),
+		[](const std::tuple < double, double, double > & region) {
+			return std::get < 2 > (region) <= 0.35; 
+		}), choices.end());
+
+	std::random_device rd;
+	std::mt19937 g(rd());
+	if(!choices.empty()) {
+		std::shuffle(choices.begin(), choices.end(), g);
+		auto[newX, newY, _] = choices.front();
+		x = newX;
+		y = newY;
+	} else {
+
+		x += ((rand() % 100) - 50) / 1000.0;
+		y += ((rand() % 100) - 50) / 1000.0;
+	}
 }
 
-double MandelbrotSet::GetImprovedUniformnessOfArea(
-    double fW, double fH, int xOffset, int yOffset, int wDiv, int hDiv)
-{
-  unsigned long long numWhite = 0;
-  unsigned long long numBlack = 0;
-  double totalPixels = fW * fH;
+void explore_branch_like_areas(double & zoom_factor, double & pan_x, double & pan_y) {
 
-  for (int wStart = 0; wStart < fW; ++wStart) {
-    for (int hStart = 0; hStart < fH; ++hStart) {
-      int xPointIndex = xOffset + wStart;
-      int yPointIndex = yOffset + hStart;
-      if (Paint_GetPixel(xPointIndex, yPointIndex) == WHITE)
-        numWhite++;
-      else
-        numBlack++;
-    }
-  }
+	if(zoom_factor > 1000.0) {
 
-  return max((double)numWhite / totalPixels, double(numBlack) / totalPixels);
+		pan_x += 0.01 * ((rand() % 2 == 0) ? 1 : -1);
+		pan_y += 0.01 * ((rand() % 2 == 0) ? 1 : -1);
+	} else {
+
+		zoom_factor *= 0.9;
+	}
 }
 
-void MandelbrotSet::ZoomOnInterestingArea()
-{
-  tuple<double, double, double> choice;
-  vector<tuple<double, double, double>> choices;
+int max_iterations(double zoom_level, double escape_time_gradient) {
+	if(zoom_level > 800.0) {
 
-  auto uniformness = GetImprovedUniformnessOfArea(
-      this->renderedResX / 2, this->renderedResY / 2, 0, 0, 2, 2);
-  choice = { this->x - this->w / 4, this->y + this->h / 4, uniformness };
-  choices.emplace_back(choice);
+		if(escape_time_gradient > 0.5) { 
+			return 1500; 
+		}
+		return 1000; 
+	}
 
-  uniformness = GetImprovedUniformnessOfArea(this->renderedResX / 2,
-      this->renderedResY / 2, this->renderedResX / 2, 0, 2, 2);
-  choice = { this->x + this->w / 4, this->y + this->h / 4, uniformness };
-  choices.emplace_back(choice);
-
-  uniformness = GetImprovedUniformnessOfArea(this->renderedResX / 2,
-      this->renderedResY / 2, 0, this->renderedResY / 2, 2, 2);
-  choice = { this->x - this->w / 4, this->y - this->h / 4, uniformness };
-  choices.emplace_back(choice);
-
-  uniformness = GetImprovedUniformnessOfArea(this->renderedResX / 2,
-      this->renderedResY / 2, this->renderedResX / 2, this->renderedResY / 2, 2,
-      2);
-  choice = { this->x + this->w / 4, this->y - this->h / 4, uniformness };
-  choices.emplace_back(choice);
-
-  w = w / 2.0;
-  h = h / 2.0;
-
-  auto lessUniformChoices = choices;
-  lessUniformChoices.erase(
-      std::remove_if(lessUniformChoices.begin(), lessUniformChoices.end(),
-          [](const tuple<double, double, double>& x) {
-            return (std::get<2>(x) >= 0.95);
-          }),
-      lessUniformChoices.end());
-
-  auto topTierChoices = choices;
-  topTierChoices.erase(
-      std::remove_if(topTierChoices.begin(), topTierChoices.end(),
-          [](const tuple<double, double, double>& x) {
-            return (std::get<2>(x) >= 0.85);
-          }),
-      topTierChoices.end());
-
-  random_device rd;
-  mt19937 g(rd());
-
-  if (topTierChoices.size() > 0) {
-    shuffle(topTierChoices.begin(), topTierChoices.end(), g);
-    auto selection = topTierChoices[0];
-    this->x = get<0>(selection);
-    this->y = get<1>(selection);
-  } else if (lessUniformChoices.size() > 0) {
-    shuffle(lessUniformChoices.begin(), lessUniformChoices.end(), g);
-    auto selection = lessUniformChoices[0];
-    this->x = get<0>(selection);
-    this->y = get<1>(selection);
-  } else {
-    shuffle(choices.begin(), choices.end(), g);
-    auto selection = choices[0];
-    this->x = get<0>(selection);
-    this->y = get<1>(selection);
-  }
+	if(zoom_level < 100.0 && escape_time_gradient < 0.1) {
+		return 100; 
+	}
+	return 500; 
 }
