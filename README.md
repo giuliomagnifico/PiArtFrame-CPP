@@ -5,7 +5,9 @@ The concept is the same, but the rendering algorithm is a bit different. I also 
 
 ## Final result
 
-![final-2](https://github.com/user-attachments/assets/04984b90-a46a-4192-91cb-3b98e74e3419)
+![final-2](https://github.com/user-attachments/assets/4f9014cb-c995-4ddb-b1d5-5a976914f166)
+
+
 ![final-1](https://giuliomagnifico.blog/_images/2024/cPiArtFrame/build_b.jpg)
 
 ## Requirement:
