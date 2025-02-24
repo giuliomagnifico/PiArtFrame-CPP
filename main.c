@@ -9,7 +9,7 @@
 
 using namespace std;
 using namespace chrono;
-static constexpr unsigned long SecondsBetweenImages = 30 * 60;
+static constexpr unsigned long SecondsBetweenImages = 60 * 60;
 void Handler(int signo) {
 	printf("\r\nHandler:exit\r\n");
 	DEV_Module_Exit();
